@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Ruan's Basics</title>
+  <meta name="description" content="A Baldi's Basics mod where our class became the characters. Play in your browser or download for Windows, Mac, Linux and Android.">
+  <meta name="theme-color" content="#ffffff">
+  <meta property="og:title" content="Ruan's Basics">
+  <meta property="og:description" content="Hi, I'm Professor Ruan, welcome to my school.">
+  <meta property="og:image" content="img/titulo.png">
+  <link rel="icon" href="img/icone.png">
+  <link rel="apple-touch-icon" href="img/icone-180.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    /* The page is the school hallway: the game's own brick wall behind everything,
+       posters hung on it, the blue carpet at the bottom where the principals stand. */
+    :root {
+      --papel: #ffffff;
+      --tinta: #161616;
+      --texto-2: #4a4a48;
+      --texto-3: #6b6b68;
+      --linha: rgba(22, 22, 22, .14);
+      --verde: #22b822;
+      --verde-claro: #3fd23f;
+      --vermelho: #c8141b;
+      --fonte: "Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive;
+      --sistema: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      --mola: cubic-bezier(.2, .8, .2, 1);
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; color: var(--tinta); font: 17px/1.55 var(--fonte);
+           background: #dfe3e3 url(img/parede.png) 0 0 / 192px 192px repeat; image-rendering: auto; }
+    img { display: block; max-width: 100%; height: auto; }
+    .pixel { image-rendering: pixelated; }
+    a { color: var(--tinta); text-underline-offset: 3px; }
+    a:hover { color: var(--vermelho); }
+    :focus-visible { outline: 3px solid var(--vermelho); outline-offset: 3px; }
+    p { margin: 0 0 12px; }
+    button { font: inherit; color: inherit; }
+
+    /* white plate with a black outline, like the signs and buttons in the game */
+    .placa { background: var(--papel); border: 3px solid var(--tinta); border-radius: 4px; }
+
+    /* ceiling */
+    .topo { position: sticky; top: 0; z-index: 10; background: var(--papel); border-bottom: 3px solid var(--tinta); }
+    .topo .dentro { width: min(1040px, 100%); margin: 0 auto; display: flex; align-items: center; gap: 24px; padding: 12px 24px; }
+    .marca { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; text-decoration: none; margin-right: auto; }
+    .marca img { width: 28px; height: 28px; }
+    .topo nav { display: flex; gap: 24px; font-size: 16px; }
+    .topo nav a { text-decoration: none; color: var(--texto-2); }
+    .topo nav a:hover { color: var(--tinta); text-decoration: underline; }
+    .lingua { appearance: none; -webkit-appearance: none; border: 0; background: transparent; cursor: pointer;
+              padding: 2px 14px 2px 0; font: 13px/1.4 var(--sistema); color: var(--texto-3);
+              background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+              background-position: right 5px center, right 1px center; background-size: 4px 4px; background-repeat: no-repeat; }
+    .lingua:hover { color: var(--tinta); }
+
+    .largura { width: min(1040px, 100%); margin: 0 auto; padding: 0 24px; }
+    section { padding: 56px 0; scroll-margin-top: 64px; }
+    h2 { display: inline-block; margin: 0 0 24px; padding: 4px 16px; font: 700 28px/1.2 var(--fonte); }
+
+    /* hero: the game's title screen */
+    .abertura { text-align: center; padding: 40px 0 64px; }
+    .abertura h1 { margin: 0 auto; width: min(560px, 100%); }
+    .abertura h1 img { background: var(--papel); border: 3px solid var(--tinta); border-radius: 4px; }
+
+    /* Ruan's intro box: same text as the start of the game, typed out */
+    .fala { position: relative; width: min(560px, 100%); margin: 24px auto 0; padding: 16px 20px; text-align: left;
+            font: 700 22px/1.4 var(--fonte); min-height: 92px; }
+    .fala::before { content: ""; position: absolute; top: -14px; left: 48px; border: 11px solid transparent;
+                    border-bottom-color: var(--tinta); border-top: 0; }
+    .fala::after { content: ""; position: absolute; top: -9px; left: 51px; border: 8px solid transparent;
+                   border-bottom-color: var(--papel); border-top: 0; }
+    .fala .cursor { display: inline-block; width: 3px; height: 1em; background: var(--tinta); vertical-align: -2px; margin-left: 2px;
+                    animation: piscar 1s steps(1) infinite; }
+    .fala.pronta .cursor { display: none; }
+    @keyframes piscar { 50% { opacity: 0; } }
+
+    .acoes { display: flex; justify-content: center; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 32px; }
+    .botao { display: inline-block; padding: 14px 32px; background: var(--verde); color: var(--tinta);
+             border: 3px solid var(--tinta); border-radius: 4px; box-shadow: 5px 5px 0 var(--tinta);
+             font: 700 24px/1.1 var(--fonte); text-decoration: none;
+             transition: background-color .12s ease-out, transform .12s ease-out, box-shadow .12s ease-out; }
+    .botao:hover { background: var(--verde-claro); color: var(--tinta); }
+    .botao:active { transform: translate(4px, 4px); box-shadow: 1px 1px 0 var(--tinta); }
+    .botao.branco { background: var(--papel); font-size: 20px; padding: 12px 24px; }
+    .botao.branco:hover { background: #f1f1ef; }
+
+    /* download: a notice on the wall */
+    .aviso { padding: 8px 24px 12px; max-width: 720px; }
+    table { width: 100%; border-collapse: collapse; font: 16px/1.4 var(--sistema); }
+    td { padding: 14px 4px; border-bottom: 1px solid var(--linha); vertical-align: middle; }
+    tr:last-child td { border-bottom: 0; }
+    td.onde { font: 700 20px/1.2 var(--fonte); }
+    td.tam { color: var(--texto-3); font-variant-numeric: tabular-nums; }
+    td.acao { text-align: right; }
+    td.acao a { display: inline-block; padding: 6px 14px; border: 2px solid var(--tinta); border-radius: 4px; background: var(--papel);
+                font: 700 17px/1.2 var(--fonte); text-decoration: none; box-shadow: 3px 3px 0 var(--tinta);
+                transition: background-color .12s ease-out, transform .12s ease-out, box-shadow .12s ease-out; }
+    td.acao a:hover { background: var(--verde-claro); color: var(--tinta); }
+    td.acao a:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--tinta); }
+
+    /* the class: posters hung on the hallway wall, click to hear them */
+    .cartazes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px 32px; margin: 0; padding: 0; list-style: none; }
+    .cartaz { display: block; width: 100%; padding: 0; border: 0; background: none; text-align: center; cursor: default; }
+    button.cartaz { cursor: pointer; }
+    .cartaz img { width: 100%; border: 3px solid var(--tinta); box-shadow: 0 6px 0 rgba(0, 0, 0, .18);
+                  transition: transform .15s var(--mola); }
+    button.cartaz:hover img { transform: translateY(-4px); }
+    button.cartaz:active img { transform: translateY(1px); }
+    .cartaz .nome { display: inline-flex; align-items: center; gap: 8px; margin-top: 12px; padding: 2px 12px;
+                    background: var(--papel); border: 2px solid var(--tinta); border-radius: 4px; font: 700 18px/1.4 var(--fonte); }
+    .cartaz svg { width: 16px; height: 16px; flex: none; }
+    .cartaz.tocando .nome { background: var(--verde-claro); }
+    .dica { display: inline-block; margin: -8px 0 24px; padding: 2px 10px; font: 15px/1.5 var(--sistema); color: var(--texto-2); background: var(--papel); }
+
+    /* feedback: a note left on the wall */
+    .recado { max-width: 720px; padding: 20px 24px; display: grid; gap: 8px; }
+    .recado label { font: 700 17px/1.4 var(--fonte); }
+    .recado textarea, .recado input { width: 100%; padding: 10px 12px; border: 2px solid var(--tinta); border-radius: 4px;
+                                      font: 16px/1.5 var(--sistema); color: var(--tinta); background: #fff; }
+    .recado textarea { resize: vertical; min-height: 120px; margin-bottom: 8px; }
+    .recado textarea:focus, .recado input:focus { outline: 3px solid var(--verde); outline-offset: 0; }
+    .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 8px; }
+    .campos label { display: block; margin-bottom: 8px; font-size: 15px; }
+    .isca { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+    .enviar { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; margin-top: 8px; }
+    .enviar .botao { font-size: 20px; padding: 10px 28px; cursor: pointer; }
+    .enviar .botao[disabled] { opacity: .6; cursor: wait; }
+    .estado { margin: 0; font: 15px/1.4 var(--sistema); }
+    .estado.ok { color: #137a13; font-weight: 600; }
+    .estado.erro { color: var(--vermelho); }
+    .contato { display: inline-block; margin: 20px 0 0; padding: 6px 14px; font: 16px/1.4 var(--sistema); }
+    .contato a { font-weight: 600; }
+
+    /* who made it: the principals standing on the carpet */
+    .quem { padding-bottom: 0; }
+    .quem .largura { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 32px; align-items: end; }
+    .quem .texto { align-self: center; padding: 16px 20px; }
+    .quem .texto p:first-child { font: 700 26px/1.3 var(--fonte); }
+    .nick { font: 14px/1 ui-monospace, Menlo, monospace; color: var(--texto-2); }
+    .diretores { display: flex; gap: 24px; align-items: flex-end; margin-bottom: -6px; }
+    .diretor { padding: 0; border: 0; background: none; cursor: pointer; text-align: center; font: 700 17px/1.2 var(--fonte); }
+    .diretor img { height: 240px; width: auto; margin: 0 auto; transition: transform .15s var(--mola); }
+    .diretor:hover img { transform: translateY(-4px); }
+    .diretor .nome { display: inline-block; margin-bottom: 8px; padding: 0 8px; background: var(--papel); border: 2px solid var(--tinta); border-radius: 4px; }
+    .diretor.tocando .nome { background: var(--verde-claro); }
+    .chao { height: 96px; border-top: 3px solid var(--tinta); background: #12224a url(img/carpete.png) 0 0 / 192px 192px repeat; image-rendering: pixelated; }
+
+    /* credits: the black screen at the end of the game */
+    .creditos { background: var(--tinta); color: #fff; text-align: center; padding: 64px 24px; }
+    .creditos .fim { width: min(360px, 100%); margin: 0 auto 40px; border: 3px solid #fff; border-radius: 4px; }
+    .creditos .rotulo { color: #a8a8a8; margin-bottom: 4px; }
+    .creditos .nomes { font-size: 24px; font-weight: 700; margin-bottom: 32px; }
+    .creditos a { color: #fff; }
+    .creditos a:hover { color: var(--verde-claro); }
+    .creditos .pequeno { font: 13px/1.5 var(--sistema); color: #9a9a9a; max-width: 560px; margin: 32px auto 0; }
+    .rodape { background: var(--tinta); color: #8a8a8a; border-top: 1px solid #333; font: 14px/1.5 var(--sistema); }
+    .rodape .largura { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; padding-block: 16px; }
+    .rodape a { color: #cfcfcf; }
+
+    @media (max-width: 760px) {
+      body { font-size: 16px; background-size: 128px 128px; }
+      .topo .dentro { padding: 10px 16px; gap: 12px; }
+      .topo nav { gap: 14px; font-size: 15px; }
+      .largura { padding: 0 16px; }
+      section { padding: 40px 0; }
+      .fala { font-size: 19px; min-height: 84px; }
+      .cartazes { grid-template-columns: repeat(2, 1fr); gap: 24px 16px; }
+      .quem .largura { grid-template-columns: 1fr; gap: 24px; }
+      .diretores { justify-content: center; }
+      .diretor img { height: 190px; }
+      .chao { height: 64px; background-size: 128px 128px; }
+      td.tam { display: none; }
+      .campos { grid-template-columns: 1fr; gap: 12px; }
+      .recado { padding: 16px; }
+    }
+    @media (max-width: 480px) { .topo nav a.opc { display: none; } .topo nav { gap: 10px; } }
+    @media (max-width: 380px) { .marca span { display: none; } }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      *, *::before, *::after { transition: none !important; animation: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topo">
+    <div class="dentro">
+      <a class="marca" href="#topo"><img class="pixel" src="img/icone.png" alt=""><span>Ruan's Basics</span></a>
+      <nav aria-label="Sections" data-t-aria="nav_aria">
+        <a href="#download" data-t="nav_download">Download</a>
+        <a href="#class" data-t="nav_class">The class</a>
+        <a href="#feedback" class="opc" data-t="fb_title">Feedback</a>
+      </nav>
+      <select class="lingua" id="lingua" aria-label="Language">
+        <option value="en" lang="en">English</option>
+        <option value="pt" lang="pt-BR">Português</option>
+        <option value="es" lang="es">Español</option>
+      </select>
+    </div>
+  </header>
+
+  <main id="topo">
+    <section class="abertura">
+      <div class="largura">
+        <h1><img class="pixel" src="img/titulo.png" width="640" height="480" alt="Ruan's Basics in Education and Learning, alpha version" data-t-alt="alt_title"></h1>
+        <p class="fala placa" id="fala" aria-label="Hi, I'm Professor Ruan, welcome to my school."><span aria-hidden="true" id="fala-texto" data-t="intro">Hi, I'm Professor Ruan, welcome to my school.</span><span class="cursor" aria-hidden="true"></span></p>
+        <div class="acoes">
+          <a class="botao" href="jogar/" data-t="play_browser">Play in browser</a>
+          <a class="botao branco" href="#download" data-t="download">Download</a>
+        </div>
+      </div>
+    </section>
+
+    <section id="download">
+      <div class="largura">
+        <h2 class="placa" data-t="download">Download</h2>
+        <div class="aviso placa">
+          <table>
+            <tbody>
+              <tr><td class="onde" data-t="browser">Browser</td><td class="tam" data-t="no_install">no install</td><td class="acao"><a href="jogar/" data-t="play">Play</a></td></tr>
+              <tr><td class="onde">Windows</td><td class="tam">.zip · 96 MB</td><td class="acao"><a href="https://github.com/joagvv/ruans-basics/releases/latest/download/RuansBasics_Windows.zip"  data-t="download">Download</a></td></tr>
+              <tr><td class="onde">Mac</td><td class="tam">.dmg · 100 MB</td><td class="acao"><a href="https://github.com/joagvv/ruans-basics/releases/latest/download/RuansBasics_Mac.dmg"  data-t="download">Download</a></td></tr>
+              <tr><td class="onde">Linux</td><td class="tam">.tar.gz · 97 MB</td><td class="acao"><a href="https://github.com/joagvv/ruans-basics/releases/latest/download/RuansBasics_Linux.tar.gz"  data-t="download">Download</a></td></tr>
+              <tr><td class="onde">Android</td><td class="tam">.apk · 84 MB</td><td class="acao"><a href="https://github.com/joagvv/ruans-basics/releases/latest/download/RuansBasics_Android.apk"  data-t="download">Download</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section id="class">
+      <div class="largura">
+        <h2 class="placa" data-t="nav_class">The class</h2><br>
+        <p class="dica" data-t="hint">Click a poster to hear them</p>
+        <ul class="cartazes">
+          <li><button class="cartaz" data-som="sons/ruan.m4a"><img class="pixel" src="img/poster_ruan.png" width="256" height="256" alt="Professor Ruan's poster" data-t-alt="poster_ruan" loading="lazy"><span class="nome"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span data-t="prof_ruan">Professor Ruan</span></span></button></li>
+          <li><button class="cartaz" data-som="sons/rafael.m4a"><img class="pixel" src="img/poster_rafael.png" width="256" height="256" alt="Rafael's poster" data-t-alt="poster_rafael" loading="lazy"><span class="nome"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Rafael</span></button></li>
+          <li><div class="cartaz"><img class="pixel" src="img/poster_felipe.png" width="256" height="256" alt="Felipe's poster" data-t-alt="poster_felipe" loading="lazy"><span class="nome">Felipe</span></div></li>
+          <li><button class="cartaz" data-som="sons/henrique.m4a"><img class="pixel" src="img/poster_henrique.png" width="256" height="256" alt="Henrique's poster" data-t-alt="poster_henrique" loading="lazy"><span class="nome"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Henrique</span></button></li>
+          <li><div class="cartaz"><img class="pixel" src="img/poster_serpa.png" width="256" height="256" alt="Serpa's poster" data-t-alt="poster_serpa" loading="lazy"><span class="nome">Serpa</span></div></li>
+          <li><button class="cartaz" data-som="sons/detofol.m4a"><img class="pixel" src="img/poster_detofol.png" width="256" height="256" alt="Detofol's poster" data-t-alt="poster_detofol" loading="lazy"><span class="nome"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h3l4-3v10L5 10H2z" fill="currentColor"/><path d="M11.5 5.5a3.5 3.5 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Detofol</span></button></li>
+        </ul>
+      </div>
+    </section>
+
+    <section id="feedback">
+      <div class="largura">
+        <h2 class="placa" data-t="fb_title">Feedback</h2>
+        <form class="recado placa" id="recado" action="https://formsubmit.co/ruansbasics@gmail.com" method="POST">
+          <label for="fb-msg" data-t="fb_msg">Found a bug, have an idea, or just want to say something?</label>
+          <textarea id="fb-msg" name="message" rows="5" required maxlength="3000"></textarea>
+          <div class="campos">
+            <div>
+              <label for="fb-nome" data-t="fb_name">Name (optional)</label>
+              <input id="fb-nome" name="name" type="text" maxlength="80" autocomplete="name">
+            </div>
+            <div>
+              <label for="fb-email" data-t="fb_email">Email, if you want a reply (optional)</label>
+              <input id="fb-email" name="email" type="email" maxlength="120" autocomplete="email">
+            </div>
+          </div>
+          <!-- campo isca: gente não vê, robô preenche e a mensagem é descartada -->
+          <input class="isca" type="text" name="_honey" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <input type="hidden" name="_subject" value="Ruan's Basics: feedback do site">
+          <input type="hidden" name="_template" value="table">
+          <input type="hidden" name="_captcha" value="false">
+          <div class="enviar">
+            <button class="botao" type="submit" data-t="fb_send">Send</button>
+            <p class="estado" id="fb-estado" role="status" aria-live="polite"></p>
+          </div>
+        </form>
+        <p class="contato placa"><span data-t="contact">Contact:</span> <a href="mailto:ruansbasics@gmail.com">ruansbasics@gmail.com</a></p>
+      </div>
+    </section>
+
+    <section class="quem" id="principals">
+      <div class="largura">
+        <div class="texto placa">
+          <p data-t="principals">We're the school principals.</p>
+          <p>João Gabriel <span class="nick">joagvv</span> <span data-t="and">and</span> Bryan Castelucci <span class="nick">Bryan_Games1005</span></p>
+        </div>
+        <div class="diretores">
+          <button class="diretor" data-som="sons/joao.m4a"><span class="nome">João</span><img class="pixel" src="img/principal_joao.png" width="312" height="1026" alt="João Gabriel as a principal in the game" data-t-alt="alt_joao" loading="lazy"></button>
+          <button class="diretor" data-som="sons/bryan.m4a"><span class="nome">Bryan</span><img class="pixel" src="img/principal_bryan.png" width="312" height="1026" alt="Bryan Castelucci as a principal in the game" data-t-alt="alt_bryan" loading="lazy"></button>
+        </div>
+      </div>
+    </section>
+    <div class="chao" aria-hidden="true"></div>
+
+    <section class="creditos" id="credits">
+      <img class="pixel fim" src="img/brand_win.png" width="640" height="480" alt="Win screen: Congratulations, you won" data-t-alt="alt_win" loading="lazy">
+      <p class="rotulo" data-t="made_by">Ruan's Basics made by</p>
+      <p class="nomes">João Gabriel <span data-t="and">and</span> Bryan Castelucci</p>
+      <p><span data-t="original">Original game, music and voices by</span> Micah McGonigal, <a href="https://basically-games.itch.io/baldis-basics" rel="noopener">Basically Games</a>.<br>
+        <span data-t="based">Based on Baldi's Basics Classic, made for the 2018 Meta Game Jam.</span></p>
+      <p class="pequeno" data-t="legal">Ruan's Basics is a free, non-profit fan mod. It is not official and not affiliated with Basically Games. Baldi's Basics and its characters belong to their creators.</p>
+    </section>
+  </main>
+
+  <footer class="rodape">
+    <div class="largura">
+      <span data-t="updated">Alpha version · updated Nov 15, 2026</span>
+      <a href="#topo" data-t="top">Back to top</a>
+    </div>
+  </footer>
+
+  <script>
+    // Three languages. First visit: picked from the browser/system language (pt-* -> pt, es-* -> es,
+    // anything else -> en). A choice made with the EN/PT/ES buttons, or ?lang=, wins and is remembered.
+    // It is saved under the same key the browser game uses, so its loading screen matches.
+    var TEXTOS = {
+      en: {
+        nav_aria: "Sections", nav_download: "Download", nav_class: "The class", nav_who: "Who made it",
+        alt_title: "Ruan's Basics in Education and Learning, alpha version",
+        intro: "Hi, I'm Professor Ruan, welcome to my school.",
+        play_browser: "Play in browser", download: "Download", browser: "Browser", no_install: "no install", play: "Play",
+        hint: "Click a poster to hear them", prof_ruan: "Professor Ruan",
+        poster_ruan: "Professor Ruan's poster", poster_rafael: "Rafael's poster", poster_felipe: "Felipe's poster",
+        poster_henrique: "Henrique's poster", poster_serpa: "Serpa's poster", poster_detofol: "Detofol's poster",
+        principals: "We're the school principals.", and: "and",
+        alt_joao: "João Gabriel as a principal in the game", alt_bryan: "Bryan Castelucci as a principal in the game",
+        alt_win: "Win screen: Congratulations, you won", win: "img/brand_win.png",
+        made_by: "Ruan's Basics made by", original: "Original game, music and voices by",
+        based: "Based on Baldi's Basics Classic, made for the 2018 Meta Game Jam.",
+        legal: "Ruan's Basics is a free, non-profit fan mod. It is not official and not affiliated with Basically Games. Baldi's Basics and its characters belong to their creators.",
+        fb_title: "Feedback", fb_msg: "Found a bug, have an idea, or just want to say something?", fb_name: "Name (optional)", fb_email: "Email, if you want a reply (optional)", fb_send: "Send",
+        fb_sending: "Sending…", fb_ok: "Thanks, we got your message.", fb_err: "It did not send. Try again, or email us.", contact: "Contact:",
+        lang_label: "Language",
+        updated: "Alpha version · updated Nov 15, 2026", top: "Back to top",
+        description: "A Baldi's Basics mod where our class became the characters. Play in your browser or download for Windows, Mac, Linux and Android."
+      },
+      pt: {
+        nav_aria: "Seções", nav_download: "Baixar", nav_class: "A turma", nav_who: "Quem fez",
+        alt_title: "Ruan's Basics in Education and Learning, versão alpha",
+        intro: "Olá, eu sou o professor Ruan, bem-vindo à minha escola.",
+        play_browser: "Jogar no navegador", download: "Baixar", browser: "Navegador", no_install: "sem instalar", play: "Jogar",
+        hint: "Clique num cartaz para ouvir", prof_ruan: "Professor Ruan",
+        poster_ruan: "Cartaz do Professor Ruan", poster_rafael: "Cartaz do Rafael", poster_felipe: "Cartaz do Felipe",
+        poster_henrique: "Cartaz do Henrique", poster_serpa: "Cartaz do Serpa", poster_detofol: "Cartaz do Detofol",
+        principals: "Somos os diretores da escola.", and: "e",
+        alt_joao: "João Gabriel como diretor no jogo", alt_bryan: "Bryan Castelucci como diretor no jogo",
+        alt_win: "Tela de vitória: Parabéns, você venceu", win: "img/brand_win_pt.png",
+        made_by: "Ruan's Basics feito por", original: "Jogo original, música e vozes de",
+        based: "Baseado em Baldi's Basics Classic, feito para a Meta Game Jam de 2018.",
+        legal: "Ruan's Basics é um mod de fãs, gratuito e sem fins lucrativos. Não é oficial e não tem ligação com a Basically Games. Baldi's Basics e seus personagens pertencem aos seus criadores.",
+        fb_title: "Feedback", fb_msg: "Achou um bug, teve uma ideia ou só quer falar alguma coisa?", fb_name: "Nome (opcional)", fb_email: "Email, se quiser resposta (opcional)", fb_send: "Enviar",
+        fb_sending: "Enviando…", fb_ok: "Valeu, a mensagem chegou.", fb_err: "Não foi. Tente de novo ou mande um email.", contact: "Contato:",
+        lang_label: "Idioma",
+        updated: "Versão alpha · atualizado em 15/11/2026", top: "Voltar ao topo",
+        description: "Um mod de Baldi's Basics em que a nossa turma virou os personagens. Jogue no navegador ou baixe para Windows, Mac, Linux e Android."
+      },
+      es: {
+        nav_aria: "Secciones", nav_download: "Descargar", nav_class: "La clase", nav_who: "Quién lo hizo",
+        alt_title: "Ruan's Basics in Education and Learning, versión alpha",
+        intro: "Hola, soy el profesor Ruan, bienvenido a mi escuela.",
+        play_browser: "Jugar en el navegador", download: "Descargar", browser: "Navegador", no_install: "sin instalar", play: "Jugar",
+        hint: "Haz clic en un cartel para escucharlo", prof_ruan: "Profesor Ruan",
+        poster_ruan: "Cartel del Profesor Ruan", poster_rafael: "Cartel de Rafael", poster_felipe: "Cartel de Felipe",
+        poster_henrique: "Cartel de Henrique", poster_serpa: "Cartel de Serpa", poster_detofol: "Cartel de Detofol",
+        principals: "Somos los directores de la escuela.", and: "y",
+        alt_joao: "João Gabriel como director en el juego", alt_bryan: "Bryan Castelucci como director en el juego",
+        alt_win: "Pantalla de victoria: Felicidades, ganaste", win: "img/brand_win_es.png",
+        made_by: "Ruan's Basics hecho por", original: "Juego original, música y voces de",
+        based: "Basado en Baldi's Basics Classic, hecho para la Meta Game Jam de 2018.",
+        legal: "Ruan's Basics es un mod de fans, gratuito y sin fines de lucro. No es oficial ni tiene relación con Basically Games. Baldi's Basics y sus personajes pertenecen a sus creadores.",
+        fb_title: "Comentarios", fb_msg: "¿Encontraste un error, tienes una idea o solo quieres decir algo?", fb_name: "Nombre (opcional)", fb_email: "Email, si quieres respuesta (opcional)", fb_send: "Enviar",
+        fb_sending: "Enviando…", fb_ok: "Gracias, recibimos tu mensaje.", fb_err: "No se envió. Inténtalo de nuevo o escríbenos.", contact: "Contacto:",
+        lang_label: "Idioma",
+        updated: "Versión alpha · actualizado el 15/11/2026", top: "Volver arriba",
+        description: "Un mod de Baldi's Basics donde nuestra clase se convirtió en los personajes. Juega en el navegador o descárgalo para Windows, Mac, Linux y Android."
+      }
+    };
+    var HTML_LANG = { en: "en", pt: "pt-BR", es: "es" };
+
+    function detectarIdioma() {
+      var pedido = new URLSearchParams(location.search).get("lang");
+      if (TEXTOS[pedido]) return pedido;
+      try { var salvo = localStorage.getItem("ruansSiteIdioma"); if (TEXTOS[salvo]) return salvo; } catch (e) {}
+      var lista = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || "en"];
+      for (var i = 0; i < lista.length; i++) {
+        var base = String(lista[i]).toLowerCase().slice(0, 2);
+        if (TEXTOS[base]) return base;
+      }
+      return "en";
+    }
+
+    function aplicarIdioma(lang) {
+      var t = TEXTOS[lang];
+      document.documentElement.lang = HTML_LANG[lang];
+      document.querySelectorAll("[data-t]").forEach(function (el) { el.textContent = t[el.dataset.t]; });
+      document.querySelectorAll("[data-t-alt]").forEach(function (el) { el.alt = t[el.dataset.tAlt]; });
+      document.querySelectorAll("[data-t-aria]").forEach(function (el) { el.setAttribute("aria-label", t[el.dataset.tAria]); });
+      document.getElementById("fala").setAttribute("aria-label", t.intro);
+      document.querySelector(".fim").src = t.win;
+      document.querySelector('meta[name="description"]').content = t.description;
+      document.getElementById("lingua").value = lang;
+      document.getElementById("lingua").setAttribute("aria-label", t.lang_label);
+      // a tela de carregamento do jogo no navegador lê esta chave
+      try { localStorage.setItem("ruansIdioma", lang); } catch (e) {}
+    }
+
+    aplicarIdioma(detectarIdioma());
+    document.getElementById("lingua").addEventListener("change", function (ev) {
+      var lang = ev.target.value;
+      try { localStorage.setItem("ruansSiteIdioma", lang); } catch (e) {}
+      aplicarIdioma(lang);
+      document.getElementById("fala").classList.add("pronta");
+    });
+
+    // Feedback goes to FormSubmit, which emails it to ruansbasics@gmail.com (no key or password in the page).
+    (function () {
+      var form = document.getElementById("recado"), estado = document.getElementById("fb-estado");
+      var botao = form.querySelector("button[type=submit]");
+      form.addEventListener("submit", function (ev) {
+        ev.preventDefault();
+        var t = TEXTOS[document.documentElement.lang.slice(0, 2)] || TEXTOS.en;
+        if (form._honey.value) return;
+        var dados = new FormData(form);
+        dados.append("idioma", document.documentElement.lang);
+        botao.disabled = true;
+        estado.className = "estado"; estado.textContent = t.fb_sending;
+        fetch("https://formsubmit.co/ajax/ruansbasics@gmail.com", { method: "POST", headers: { Accept: "application/json" }, body: dados })
+          .then(function (r) { return r.json().then(function (j) { if (!r.ok || String(j.success) !== "true") throw new Error(j.message || r.status); }); })
+          .then(function () { form.reset(); estado.className = "estado ok"; estado.textContent = t.fb_ok; })
+          .catch(function () { estado.className = "estado erro"; estado.textContent = t.fb_err; })
+          .then(function () { botao.disabled = false; });
+      });
+    })();
+
+    // Ruan's intro line types itself out, like the text box at the start of the game
+    (function () {
+      var caixa = document.getElementById("fala"), alvo = document.getElementById("fala-texto");
+      var texto = alvo.textContent;
+      var calmo = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+      if (calmo) { caixa.classList.add("pronta"); return; }
+      alvo.textContent = "";
+      var i = 0;
+      setTimeout(function passo() {
+        if (caixa.classList.contains("pronta")) return; // trocou de língua no meio: o texto novo já está inteiro
+        alvo.textContent = texto.slice(0, ++i);
+        if (i < texto.length) setTimeout(passo, texto[i - 1] === "," ? 220 : 38);
+        else setTimeout(function () { caixa.classList.add("pronta"); }, 1200);
+      }, 500);
+    })();
+
+    // posters and principals play their voice from the game; one at a time
+    (function () {
+      var atual = null, dono = null;
+      document.querySelectorAll("[data-som]").forEach(function (el) {
+        el.addEventListener("click", function () {
+          var mesmo = dono === el;
+          if (atual) { atual.pause(); dono.classList.remove("tocando"); atual = dono = null; }
+          if (mesmo) return; // clicking the one that is playing stops it
+          var som = new Audio(el.dataset.som);
+          atual = som; dono = el;
+          el.classList.add("tocando");
+          som.addEventListener("ended", function () { el.classList.remove("tocando"); if (atual === som) atual = dono = null; });
+          som.play().catch(function () { el.classList.remove("tocando"); });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

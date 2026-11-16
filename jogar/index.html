@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#000000">
+    <title>Ruan's Basics</title>
+    <link rel="icon" href="icone.png">
+    <!-- atalho na tela inicial: rosto do professor (tools/make_icon.py) -->
+    <link rel="apple-touch-icon" href="icone-180.png">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="apple-mobile-web-app-title" content="Ruan's Basics">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+      html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #000; overflow: hidden;
+                   overscroll-behavior: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+      #jogo { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100dvh; display: block;
+              background: #000; touch-action: none; outline: none; }
+      /* carregando: como os menus do Baldi: fundo branco, logo, Comic Sans preta, barra quadrada de Paint */
+      #carregando { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center;
+                    justify-content: center; gap: 2vmin; background: #fff; color: #000;
+                    font: 16px "Comic Sans MS", "Comic Neue", "Chalkboard SE", cursive;
+                    text-align: center; padding: 16px; box-sizing: border-box; }
+      #logo { height: min(58vh, 72vw); max-width: 92vw; object-fit: contain; image-rendering: pixelated; }
+      #barra { width: min(60vw, 400px); height: min(5vh, 26px); border: 3px solid #000; background: #fff; box-sizing: border-box; }
+      #barra div { height: 100%; width: 0; background: #00c000; }
+      #texto { height: min(6vh, 31px); }
+      #texto img { height: 100%; display: none; }
+      #texto img.ativo { display: inline; }
+      #erro { color: #d00000; max-width: 640px; display: none; }
+      /* celular em pé: aviso para virar (por cima de tudo, até do jogo) */
+      #vire { position: fixed; inset: 0; z-index: 5; display: none; flex-direction: column; align-items: center;
+              justify-content: center; gap: 4vh; background: #fff; padding: 24px; box-sizing: border-box; }
+      #vire img { max-width: 86vw; }
+      #vire .desenho { width: 80vw; max-width: 360px; }
+      #vire .t1 { width: 84vw; max-width: 330px; }
+      #vire .t2 { width: 66vw; max-width: 260px; }
+      @media (orientation: portrait) { .celular #vire { display: flex; } }
+      /* PC: canto de cima à esquerda (embaixo à esquerda cobre o VOLTAR). Celular: sem botão,
+         a tela cheia entra sozinha no primeiro toque */
+      #telacheia { position: fixed; left: max(6px, env(safe-area-inset-left)); top: max(6px, env(safe-area-inset-top));
+                   width: 32px; height: 32px; border: 0; border-radius: 6px; background: rgba(0,0,0,.35); color: #fff;
+                   font-size: 18px; line-height: 32px; cursor: pointer; display: none; z-index: 2; opacity: .7; }
+      #telacheia:hover { opacity: 1; }
+      :fullscreen #telacheia { display: none !important; }
+      #telacheia:focus-visible { outline: 2px solid #fff; }
+    </style>
+  </head>
+  <body>
+    <canvas id="jogo" tabindex="-1"></canvas>
+    <div id="carregando">
+      <img id="logo" src="titulo.png" alt="Ruan's Basics">
+      <div id="barra" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div></div></div>
+      <div id="texto" aria-live="polite">
+        <img id="tCarregando" class="ativo" src="txt_carregando_en.png" alt="Loading...">
+        <img id="tAbrindo" src="txt_abrindo_en.png" alt="Opening the school...">
+      </div>
+      <div id="erro"></div>
+    </div>
+    <div id="vire" role="alert">
+      <img class="desenho" src="vire.png" alt="">
+      <img class="t1" src="txt_vire_en.png" alt="Turn your phone sideways">
+      <img class="t2" src="txt_vire2_en.png" alt="The game only works in landscape.">
+    </div>
+    <button id="telacheia" title="Fullscreen" aria-label="Fullscreen">⛶</button>
+    <script>
+      // língua escolhida em Opções do jogo (salva pelo RuansWeb.jslib); sem nada salvo, inglês
+      var idioma = "en";
+      try { idioma = localStorage.getItem("ruansIdioma") || "en"; } catch (e) {}
+      if (["en", "pt", "es"].indexOf(idioma) < 0) idioma = "en";
+      var TEXTOS = {
+        en: { lang: "en", carregando: "Loading...", abrindo: "Opening the school...", vire: "Turn your phone sideways",
+              vire2: "The game only works in landscape.", tela: "Fullscreen", erro: "Couldn't open the game: " },
+        pt: { lang: "pt-BR", carregando: "Carregando...", abrindo: "Abrindo a escola...", vire: "Vire o celular de lado",
+              vire2: "O jogo só funciona deitado.", tela: "Tela cheia", erro: "Não deu para abrir o jogo: " },
+        es: { lang: "es", carregando: "Cargando...", abrindo: "Abriendo la escuela...", vire: "Gira el celular de lado",
+              vire2: "El juego solo funciona en horizontal.", tela: "Pantalla completa", erro: "No se pudo abrir el juego: " }
+      }[idioma];
+      document.documentElement.lang = TEXTOS.lang;
+      [["#tCarregando", "carregando"], ["#tAbrindo", "abrindo"], ["#vire .t1", "vire"], ["#vire .t2", "vire2"]].forEach(function (p) {
+        var img = document.querySelector(p[0]);
+        img.src = img.src.replace(/_en\.png$/, "_" + idioma + ".png");
+        img.alt = TEXTOS[p[1]];
+      });
+      document.getElementById("telacheia").title = TEXTOS.tela;
+      document.getElementById("telacheia").setAttribute("aria-label", TEXTOS.tela);
+
+      var canvas = document.getElementById("jogo");
+      var carregando = document.getElementById("carregando");
+      var barra = document.querySelector("#barra div");
+      var barraBox = document.getElementById("barra");
+      var tCarregando = document.getElementById("tCarregando");
+      var tAbrindo = document.getElementById("tAbrindo");
+      var erro = document.getElementById("erro");
+      var telacheia = document.getElementById("telacheia");
+      var celular = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) ||
+                    (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+      if (celular) document.documentElement.classList.add("celular");
+
+      // depois de uma atualização o navegador pode guardar o index.html antigo, que aponta para arquivos
+      // do build anterior (que não existem mais). Se o jogo não carregar, recarrega UMA vez buscando a página nova.
+      function falhouCarregar(msg) {
+        var jaTentou = false;
+        try { jaTentou = sessionStorage.getItem("ruansRecarregou") === "1"; sessionStorage.setItem("ruansRecarregou", "1"); } catch (e) { jaTentou = true; }
+        if (!jaTentou) { location.reload(); return; }
+        mostraErro(msg);
+      }
+
+      function mostraErro(msg) {
+        erro.style.display = "block";
+        erro.textContent = TEXTOS.erro + msg;
+      }
+
+      // avisos curtos da Unity vão só para o console; erro de verdade aparece na tela
+      function banner(msg, tipo) {
+        if (tipo !== "error") console.warn(msg);
+        else if (carregando.style.display !== "none") falhouCarregar(msg); // ainda abrindo: arquivo velho/corrompido
+        else mostraErro(msg);
+      }
+
+      var config = {
+        dataUrl: "Build/fdd52fdd6421009030bd2fc17c32d635.data.unityweb",
+        frameworkUrl: "Build/6eefbcca344cf0601dd5049b7994aee4.framework.js.unityweb",
+        codeUrl: "Build/00aa9c9bdc7497d9bf8b8bf9555f0fa0.wasm.unityweb",
+        streamingAssetsUrl: "StreamingAssets",
+        companyName: "Ruans",
+        productName: "Ruan's Basics",
+        productVersion: "1.4.2",
+        showBanner: banner,
+        autoSyncPersistentDataPath: true,
+      };
+      // celular: resolução adaptativa. Fixa em 1x fica borrada (num celular de tela 3x = 1/3 dos pixels);
+      // na tela toda (3x) pesa demais. Começa em até 2x e o medidor de FPS lá embaixo ajusta sozinho.
+      var dprMax = Math.min(window.devicePixelRatio || 1, 2);
+      var dpr = dprMax;
+      if (celular) config.devicePixelRatio = dpr;
+
+      var script = document.createElement("script");
+      script.src = "Build/bbb2875285a802122855a7af67a0ee81.loader.js";
+      script.onload = function () {
+        createUnityInstance(canvas, config, function (p) {
+          // enche em degraus de 5%, sem animação suave (barra de jogo antigo)
+          var pct = Math.floor(p * 20) * 5;
+          barra.style.width = pct + "%";
+          barraBox.setAttribute("aria-valuenow", pct);
+          var abrindo = p >= 0.9;
+          tCarregando.classList.toggle("ativo", !abrindo);
+          tAbrindo.classList.toggle("ativo", abrindo);
+        }).then(function (instancia) {
+          carregando.style.display = "none";
+          try { sessionStorage.removeItem("ruansRecarregou"); } catch (e) {}
+          if (!celular) {
+            telacheia.style.display = "block";
+            telacheia.onclick = function () { instancia.SetFullscreen(1); };
+          } else {
+            // celular: primeiro toque = tela cheia da página (o navegador só deixa dentro de um toque) e,
+            // no Android, trava deitado. iPhone não tem tela cheia para páginas: lá fica só o aviso de virar.
+            var pediu = false;
+            document.addEventListener("touchend", function () {
+              if (pediu) return;
+              pediu = true;
+              var el = document.documentElement;
+              var fs = el.requestFullscreen || el.webkitRequestFullscreen;
+              if (!fs) return;
+              try {
+                var p = fs.call(el, { navigationUI: "hide" });
+                var trava = function () { try { screen.orientation.lock("landscape").catch(function () {}); } catch (e) {} };
+                if (p && p.then) p.then(trava, function () {}); else trava();
+              } catch (e) {}
+            }, { passive: true });
+          }
+          canvas.focus();
+          if (celular) ajustaResolucao(instancia);
+        }).catch(function (e) { falhouCarregar(e && e.message ? e.message : String(e)); });
+      };
+      script.onerror = function () { falhouCarregar("o arquivo do jogo não carregou (sem internet?)"); };
+      document.body.appendChild(script);
+
+      // mede o FPS a cada 2 s: abaixo de 40 baixa a resolução um degrau (até 1x); acima de 55 por 3 medidas
+      // seguidas sobe de volta (sem subir nos 10 s depois de uma descida, para não ficar oscilando).
+      // A Unity lê Module.devicePixelRatio a cada quadro, então a troca vale na hora.
+      function ajustaResolucao(instancia) {
+        var quadros = 0, inicio = performance.now(), bons = 0, travaSubida = 0;
+        function quadro(agora) {
+          quadros++;
+          var dt = agora - inicio;
+          if (dt >= 2000) {
+            var fps = quadros * 1000 / dt;
+            quadros = 0; inicio = agora;
+            if (document.hidden) { requestAnimationFrame(quadro); return; }
+            if (fps < 40 && dpr > 1) {
+              dpr = Math.max(1, Math.round((dpr - 0.25) * 4) / 4); bons = 0; travaSubida = agora + 10000;
+              instancia.Module.devicePixelRatio = dpr;
+            } else if (fps > 55 && dpr < dprMax && agora > travaSubida && ++bons >= 3) {
+              dpr = Math.min(dprMax, dpr + 0.25); bons = 0;
+              instancia.Module.devicePixelRatio = dpr;
+            } else if (fps <= 55) bons = 0;
+          }
+          requestAnimationFrame(quadro);
+        }
+        requestAnimationFrame(quadro);
+      }
+
+      // clicar no jogo devolve o teclado para ele (depois de usar o botão de tela cheia, por exemplo)
+      canvas.addEventListener("pointerdown", function () { canvas.focus(); });
+      // sem menu do botão direito: no jogo ele usa o item
+      canvas.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+    </script>
+  </body>
+</html>
