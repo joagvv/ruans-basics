@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
@@ -66,10 +66,10 @@
     </div>
     <button id="telacheia" title="Fullscreen" aria-label="Fullscreen">⛶</button>
     <script>
-      // língua escolhida em Opções do jogo (salva pelo RuansWeb.jslib); sem nada salvo, inglês
-      var idioma = "en";
-      try { idioma = localStorage.getItem("ruansIdioma") || "en"; } catch (e) {}
-      if (["en", "pt", "es"].indexOf(idioma) < 0) idioma = "en";
+      // língua escolhida em Opções do jogo (salva pelo RuansWeb.jslib); sem nada salvo, português
+      var idioma = "pt";
+      try { idioma = localStorage.getItem("ruansIdioma") || "pt"; } catch (e) {}
+      if (["en", "pt", "es"].indexOf(idioma) < 0) idioma = "pt";
       var TEXTOS = {
         en: { lang: "en", carregando: "Loading...", abrindo: "Opening the school...", vire: "Turn your phone sideways",
               vire2: "The game only works in landscape.", tela: "Fullscreen", erro: "Couldn't open the game: " },
@@ -121,9 +121,9 @@
       }
 
       var config = {
-        dataUrl: "Build/fdd52fdd6421009030bd2fc17c32d635.data.unityweb",
-        frameworkUrl: "Build/6eefbcca344cf0601dd5049b7994aee4.framework.js.unityweb",
-        codeUrl: "Build/00aa9c9bdc7497d9bf8b8bf9555f0fa0.wasm.unityweb",
+        dataUrl: "Build/a7eee960076f3562fe4b0c880d768264.data.unityweb",
+        frameworkUrl: "Build/e04e569168f49f1c56e9a132176dbbc4.framework.js.unityweb",
+        codeUrl: "Build/67f0f4f0ad5568f38abfefa269b5aa3b.wasm.unityweb",
         streamingAssetsUrl: "StreamingAssets",
         companyName: "Ruans",
         productName: "Ruan's Basics",
@@ -138,7 +138,7 @@
       if (celular) config.devicePixelRatio = dpr;
 
       var script = document.createElement("script");
-      script.src = "Build/bbb2875285a802122855a7af67a0ee81.loader.js";
+      script.src = "Build/cab3ce73e344e545f5d4aa5c4d574108.loader.js";
       script.onload = function () {
         createUnityInstance(canvas, config, function (p) {
           // enche em degraus de 5%, sem animação suave (barra de jogo antigo)
